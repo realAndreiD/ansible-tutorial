@@ -6,15 +6,35 @@
   
 
   - name: update repo
+    apt:
+      update_cache: yes
+    when: ansible_distribution in ["Ubuntu", "Debian"]
+
+  - name: install apache2 package
+    apt:
+      name: httpd
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: add php support
+    apt:
+      name: php
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: update repo
     yum:
       update_cache: yes
+    when: ansible_distribution == "Amazon"
 
   - name: install apache2 package
     yum:
       name: httpd
       state: latest
+    when: ansible_distribution == "Amazon"
 
   - name: add php support
     yum:
       name: php
       state: latest
+    when: ansible_distribution == "Amazon"
