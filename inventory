@@ -7,3 +7,6 @@
 
 [file_servers]
 54.226.81.17
+
+[workstations:children]
+file_servers
