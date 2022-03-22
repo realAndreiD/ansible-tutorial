@@ -18,6 +18,31 @@
       update_cache: yes
     when: ansible_distribution == "Ubuntu"
 
+- hosts: all
+  become: true
+  tasks:
+
+  - name: create Simone user
+    tags: always
+    user: 
+      name: Simone
+      group: root 
+
+  - name: add ssh key for Simone
+    tags: always
+    authorized_key:
+      user: Simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH5aIE3sXssFGNwuv8bcFw3tq6hqgWyQW5sqqI21LSIW “andrei”"
+
+  - name: add sudoer file for Simone
+    tags: always
+    copy:
+      src: sudoer_simone
+      dest: /etc/sudoers.d/simone
+      owner: root
+      group: root
+      mode: 0440  
+        
 - hosts: workstations
   become: true
   tasks:
@@ -57,6 +82,31 @@
         state: latest
       when: ansible_distribution == "Amazon"  
 
+    - name: start httpd (Centos)
+      tags: amazon,apache,httpd
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_distribution == "Amazon"
+
+    - name: change email address for admin
+      tags: apache,amazon,httpd
+      lineinfile: 
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^ServerAdmin'
+        line: ServerAdmin somebody@some.com
+      when: ansible_distribution == "Amazon"
+      register: httpdstare
+
+    - name: restart httpd
+      tags: apache,amazon,https
+      service:
+        name: httpd
+        state: restarted
+      when: httpdstare.changed
+
+        
     - name: copy default html files
       tags: apache,apache2,httpd
       copy:
